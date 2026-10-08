@@ -1,0 +1,69 @@
+services:
+  # ── Agent (LangGraph Python) — native Python with FastAPI + uvicorn ──
+  - type: pserv
+    name: open-generative-ui-agent
+    runtime: python
+    plan: 0.5c-512mb
+    region: singapore
+    rootDir: apps/agent
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: .venv/bin/uvicorn main:app --host 0.0.0.0 --port 8123
+    numInstances: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.11"
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: LLM_MODEL
+        value: deepseek-chat
+    buildFilter:
+      paths:
+        - apps/agent/**
+
+  # ── Frontend (Next.js) — native Node runtime ──
+  - type: web
+    name: open-generative-ui-app
+    runtime: node
+    plan: 0.5c-512mb
+    region: singapore
+    numInstances: 1
+    disk:
+      name: application-data
+      mountPath: /var/data
+      sizeGB: 1
+    # turbo's build task dependsOn ^build, so @repo/design-system dist/ is built before the app
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm exec turbo run build --filter=@repo/app
+    startCommand: node apps/app/.next/standalone/apps/app/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: SKIP_INSTALL_DEPS
+        value: "true"
+      - key: LANGGRAPH_DEPLOYMENT_URL
+        fromService:
+          name: open-generative-ui-agent
+          type: pserv
+          property: hostport
+      - key: HISTORY_DATA_DIR
+        value: /var/data/history
+      - key: UPLOAD_DATA_DIR
+        value: /var/data/uploads
+      - key: RATE_LIMIT_ENABLED
+        value: "false"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: RATE_LIMIT_MAX
+        value: "40"
+    buildFilter:
+      paths:
+        - apps/app/**
+        - packages/design-system/**
+        - package.json
+        - pnpm-lock.yaml
+        - turbo.json
+        - pnpm-workspace.yaml
+        - patches/**
+        - render.yaml

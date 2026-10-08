@@ -1,0 +1,1238 @@
+{
+ "schemaVersion": 1,
+ "generatedAt": "2026-08-31T16:05:46.446Z",
+ "license": "MIT (ThreeUI Community)",
+ "source": "https://github.com/MengTo/threeui",
+ "components": [
+  {
+   "id": "kage-landing-page",
+   "exportName": "KageLandingPage",
+   "runtime": "Full HTML + DOM/CSS + Three.js",
+   "category": "page",
+   "sourceCommit": "SHA-256 c8e06b90397a",
+   "files": [
+    {
+     "path": "public/landing-pages/kage.html",
+     "kind": "document",
+     "bytes": 243963
+    },
+    {
+     "path": "public/landing-pages/secret-pathways-assets/fonts.css",
+     "kind": "style",
+     "bytes": 99356
+    },
+    {
+     "path": "public/landing-pages/secret-pathways-assets/three.min.js",
+     "kind": "shader",
+     "bytes": 608081
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "complete-shelf-landing-page",
+   "exportName": "CompleteShelfLandingPage",
+   "runtime": "Full HTML + DOM/CSS + Three.js r165",
+   "category": "page",
+   "sourceCommit": "SHA-256 606f200fed86",
+   "files": [
+    {
+     "path": "public/landing-pages/complete-shelf-v2.html",
+     "kind": "document",
+     "bytes": 900296
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "bestsellers-book-showcase",
+   "exportName": "BestsellersBookShowcase",
+   "runtime": "Full HTML + DOM/CSS + embedded media",
+   "category": "page",
+   "sourceCommit": "SHA-256 7c1ed1ca4a4c",
+   "files": [
+    {
+     "path": "public/landing-pages/bestsellers-book-showcase.html",
+     "kind": "document",
+     "bytes": 3546441
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "sylva-hero",
+   "exportName": "SylvaHero",
+   "runtime": "Full HTML + DOM/CSS + local Three.js",
+   "category": "page",
+   "sourceCommit": "SHA-256 05f359ce157a",
+   "files": [
+    {
+     "path": "public/landing-pages/inner-green-3d.html",
+     "kind": "document",
+     "bytes": 197914
+    },
+    {
+     "path": "public/landing-pages/inner-green-assets/three.min.js",
+     "kind": "shader",
+     "bytes": 608081
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "meng-to-sketchbook-landing-page",
+   "exportName": "MengToSketchbookLandingPage",
+   "runtime": "Full HTML + DOM/CSS + JavaScript",
+   "category": "page",
+   "sourceCommit": "SHA-256 e0330548b1ac",
+   "files": [
+    {
+     "path": "public/landing-pages/meng-to-sketchbook.html",
+     "kind": "document",
+     "bytes": 45528
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "predictive-arc",
+   "exportName": "PredictiveArcCanvas",
+   "runtime": "Canvas 2D + Raw WebGL + Three.js r128",
+   "category": "data",
+   "sourceCommit": "SHA-256 fa86582fc870",
+   "files": [
+    {
+     "path": "src/shaders/predictive-arc/PredictiveArcCollection.tsx",
+     "kind": "code",
+     "bytes": 2860
+    },
+    {
+     "path": "src/shaders/predictive-arc/PredictiveArcCanvas.tsx",
+     "kind": "code",
+     "bytes": 4365
+    },
+    {
+     "path": "src/shaders/predictive-arc/predictiveArcRenderer.ts",
+     "kind": "renderer",
+     "bytes": 4088
+    },
+    {
+     "path": "src/shaders/data-pixel-arc/DataPixelArcCanvas.tsx",
+     "kind": "code",
+     "bytes": 2376
+    },
+    {
+     "path": "src/shaders/data-pixel-arc/dataPixelArcRenderer.ts",
+     "kind": "renderer",
+     "bytes": 4372
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/amber-halftone.html",
+     "kind": "document",
+     "bytes": 16324
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/signal-particles.html",
+     "kind": "document",
+     "bytes": 33027
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/override-grid.html",
+     "kind": "document",
+     "bytes": 14421
+    },
+    {
+     "path": "src/shaders/ribbon-field/RibbonFieldBackground.tsx",
+     "kind": "code",
+     "bytes": 4717
+    },
+    {
+     "path": "src/shaders/ribbon-field/ribbonFieldShaders.ts",
+     "kind": "shader",
+     "bytes": 2907
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/void-protocol.html",
+     "kind": "document",
+     "bytes": 21426
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/nexus-unified-flow.html",
+     "kind": "document",
+     "bytes": 15094
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "liquid-form",
+   "exportName": "LiquidFormBackground",
+   "runtime": "Raw WebGL",
+   "category": "background",
+   "sourceCommit": "SHA-256 acc0cbacb914",
+   "files": [
+    {
+     "path": "src/shaders/liquid-form/LiquidFormBackground.tsx",
+     "kind": "code",
+     "bytes": 5476
+    },
+    {
+     "path": "src/shaders/liquid-form/liquidFormShaders.ts",
+     "kind": "shader",
+     "bytes": 4552
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "crt",
+   "exportName": "CrtBackground",
+   "runtime": "Raw WebGL + Canvas 2D",
+   "category": "background",
+   "sourceCommit": "SHA-256 860a1eb1d4c9",
+   "files": [
+    {
+     "path": "src/shaders/crt/CrtBackground.tsx",
+     "kind": "code",
+     "bytes": 1947
+    },
+    {
+     "path": "src/shaders/crt/crtRenderer.ts",
+     "kind": "renderer",
+     "bytes": 12561
+    },
+    {
+     "path": "src/shaders/crt/crtShaders.ts",
+     "kind": "shader",
+     "bytes": 3800
+    },
+    {
+     "path": "src/shaders/crt/crtScreens.ts",
+     "kind": "code",
+     "bytes": 22165
+    }
+   ],
+   "inBatch": true
+  },
+  {
+   "id": "energy-orb",
+   "exportName": "GlobeCollection",
+   "runtime": "Raw WebGL + Canvas 2D",
+   "category": "background",
+   "sourceCommit": "SHA-256 03b1b8e2c440 / 3de7fdcb6239 / 7a88f26e4d8",
+   "files": [
+    {
+     "path": "src/shaders/globe/GlobeCollection.tsx",
+     "kind": "code",
+     "bytes": 595
+    },
+    {
+     "path": "src/shaders/energy-orb/EnergyOrb.tsx",
+     "kind": "code",
+     "bytes": 9715
+    },
+    {
+     "path": "src/shaders/energy-orb/energyOrbShaders.ts",
+     "kind": "shader",
+     "bytes": 4787
+    }
+   ],
+   "inBatch": true
+  },
+  {
+   "id": "spark-badge",
+   "exportName": "SparkBadge",
+   "runtime": "Canvas 2D",
+   "category": "ui",
+   "sourceCommit": "SHA-256 a8eefdee0d87",
+   "files": [
+    {
+     "path": "src/shaders/spark-badge/SparkBadge.tsx",
+     "kind": "code",
+     "bytes": 1420
+    },
+    {
+     "path": "src/shaders/spark-badge/spark-badge.html",
+     "kind": "document",
+     "bytes": 38119
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "elements",
+   "exportName": "ElementsCollection",
+   "runtime": "Raw WebGL2 + Canvas 2D",
+   "category": "visual",
+   "sourceCommit": "SHA-256 7a6871fe99fa",
+   "files": [
+    {
+     "path": "src/shaders/elements/ElementsCollection.tsx",
+     "kind": "code",
+     "bytes": 1992
+    },
+    {
+     "path": "src/shaders/elements/ElementsBackground.tsx",
+     "kind": "code",
+     "bytes": 13838
+    },
+    {
+     "path": "src/shaders/elements/sources/elemental-marks.html",
+     "kind": "document",
+     "bytes": 34581
+    },
+    {
+     "path": "src/shaders/elements/GenerativeTree.tsx",
+     "kind": "code",
+     "bytes": 6354
+    },
+    {
+     "path": "src/shaders/elements/sources/generative-tree.html",
+     "kind": "document",
+     "bytes": 20247
+    },
+    {
+     "path": "src/shaders/condensation/CondensationBackground.tsx",
+     "kind": "code",
+     "bytes": 1803
+    },
+    {
+     "path": "src/shaders/condensation/condensationRenderer.ts",
+     "kind": "renderer",
+     "bytes": 6287
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "typography-vortex",
+   "exportName": "TypographyVortexCanvas",
+   "runtime": "Canvas 2D",
+   "category": "data",
+   "sourceCommit": "5a736cd3c1f6f19802f61ebb10e1701b9f7aa26e",
+   "files": [
+    {
+     "path": "src/shaders/typography-vortex/TypographyVortexCanvas.tsx",
+     "kind": "code",
+     "bytes": 1740
+    },
+    {
+     "path": "src/shaders/typography-vortex/typographyVortexRenderer.ts",
+     "kind": "renderer",
+     "bytes": 20303
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "semantic-bloom",
+   "exportName": "SemanticBloom",
+   "runtime": "Canvas 2D + DOM/CSS",
+   "category": "visual",
+   "sourceCommit": "SHA-256 0e48ec9ed2c3",
+   "files": [
+    {
+     "path": "src/shaders/semantic-bloom/SemanticBloom.tsx",
+     "kind": "code",
+     "bytes": 6630
+    },
+    {
+     "path": "src/shaders/semantic-bloom/sources/design-f0ebbe02-7d8a-41fd-9041-a1124185c27b.html",
+     "kind": "document",
+     "bytes": 15151
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "globe-study",
+   "exportName": "TextPathStudies",
+   "runtime": "Canvas 2D",
+   "category": "scene",
+   "sourceCommit": "SHA-256 2e21ae3b77c3 + e5d01ff0fc47",
+   "files": [
+    {
+     "path": "src/shaders/text-path-studies/TextPathStudies.tsx",
+     "kind": "code",
+     "bytes": 10892
+    },
+    {
+     "path": "src/shaders/text-path-studies/sources/text-on-a-path-ii.html",
+     "kind": "document",
+     "bytes": 62883
+    },
+    {
+     "path": "src/shaders/text-path-studies/sources/text-on-a-path.html",
+     "kind": "document",
+     "bytes": 15502
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "gallery-heading",
+   "exportName": "GalleryHeading",
+   "runtime": "Canvas 2D",
+   "category": "scene",
+   "sourceCommit": "SHA-256 8e42d2d5b497",
+   "files": [
+    {
+     "path": "src/shaders/neuform-isolated/sources/gallery-heading.html",
+     "kind": "document",
+     "bytes": 19335
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "star-portal",
+   "exportName": "ShaderButtons",
+   "runtime": "Raw WebGL + Canvas 2D + CSS",
+   "category": "ui",
+   "sourceCommit": "SHA-256 002199215e12",
+   "files": [
+    {
+     "path": "src/shaders/shader-buttons/ShaderButtons.tsx",
+     "kind": "code",
+     "bytes": 2217
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/imaginie-starfield.html",
+     "kind": "document",
+     "bytes": 18018
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/ignition-terminal.html",
+     "kind": "document",
+     "bytes": 12813
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/valence-core.html",
+     "kind": "document",
+     "bytes": 19010
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/aetheris-labs.html",
+     "kind": "document",
+     "bytes": 15926
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/nexus-tactile.html",
+     "kind": "document",
+     "bytes": 17473
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/thinking-button.html",
+     "kind": "document",
+     "bytes": 11664
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "rectangle-buttons",
+   "exportName": "RectangleButtons",
+   "runtime": "DOM + CSS",
+   "category": "ui",
+   "sourceCommit": "SHA-256 f4f3dd8422cd",
+   "files": [
+    {
+     "path": "src/shaders/rectangle-buttons/RectangleButtons.tsx",
+     "kind": "code",
+     "bytes": 29427
+    },
+    {
+     "path": "src/shaders/section-elements/SectionElements.tsx",
+     "kind": "code",
+     "bytes": 4833
+    },
+    {
+     "path": "src/shaders/section-elements/section-elements.css",
+     "kind": "style",
+     "bytes": 13536
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/launch-button.html",
+     "kind": "document",
+     "bytes": 5289
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/dot-border-button.html",
+     "kind": "document",
+     "bytes": 12243
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/floating-dots-cta.html",
+     "kind": "document",
+     "bytes": 9054
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/sliding-text-cta.html",
+     "kind": "document",
+     "bytes": 5846
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/gradient-beam-cta.html",
+     "kind": "document",
+     "bytes": 6428
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/gradient-pill-button.html",
+     "kind": "document",
+     "bytes": 5828
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/generate-button.html",
+     "kind": "document",
+     "bytes": 15542
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/glassmorphism-cta.html",
+     "kind": "document",
+     "bytes": 8068
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/spinning-border-button.html",
+     "kind": "document",
+     "bytes": 5607
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/gradient-cta.html",
+     "kind": "document",
+     "bytes": 5356
+    },
+    {
+     "path": "src/shaders/lumen-cta/LumenCta.tsx",
+     "kind": "code",
+     "bytes": 2229
+    },
+    {
+     "path": "src/shaders/lumen-cta/lumen-cta.css",
+     "kind": "style",
+     "bytes": 2938
+    },
+    {
+     "path": "src/shaders/lumen-cta/sources/lumen.html",
+     "kind": "document",
+     "bytes": 33252
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "circle-buttons",
+   "exportName": "CircleButtons",
+   "runtime": "DOM + CSS",
+   "category": "ui",
+   "sourceCommit": "SHA-256 2e85693f7ada",
+   "files": [
+    {
+     "path": "src/shaders/circle-buttons/CircleButtons.tsx",
+     "kind": "code",
+     "bytes": 3428
+    },
+    {
+     "path": "src/shaders/circle-buttons/circle-buttons.css",
+     "kind": "style",
+     "bytes": 10905
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "liquid-metal-button",
+   "exportName": "LiquidMetalButton",
+   "runtime": "Raw WebGL 2 + DOM/CSS",
+   "category": "ui",
+   "sourceCommit": "SHA-256 76624e881a3a",
+   "files": [
+    {
+     "path": "src/shaders/liquid-metal-button/LiquidMetalButton.tsx",
+     "kind": "code",
+     "bytes": 8973
+    },
+    {
+     "path": "src/shaders/liquid-metal-button/liquid-metal-button.html",
+     "kind": "document",
+     "bytes": 38589
+    }
+   ],
+   "inBatch": true
+  },
+  {
+   "id": "character-carousel",
+   "exportName": "CharacterCarousel",
+   "runtime": "DOM + CSS",
+   "category": "scene",
+   "sourceCommit": "SHA-256 4c98939e0e2b",
+   "files": [
+    {
+     "path": "src/shaders/character-carousel/CharacterCarousel.tsx",
+     "kind": "code",
+     "bytes": 6289
+    },
+    {
+     "path": "src/shaders/character-carousel/sources/character-filmstrip.html",
+     "kind": "document",
+     "bytes": 266063
+    },
+    {
+     "path": "src/shaders/character-carousel/sources/character-wave.html",
+     "kind": "document",
+     "bytes": 268690
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "gallery",
+   "exportName": "Gallery",
+   "runtime": "Three.js r149",
+   "category": "scene",
+   "sourceCommit": "SHA-256 f7a576d4db08",
+   "files": [
+    {
+     "path": "src/shaders/gallery/Gallery.tsx",
+     "kind": "code",
+     "bytes": 6310
+    },
+    {
+     "path": "src/shaders/gallery/gallery.css",
+     "kind": "style",
+     "bytes": 356
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "sylva-living-world",
+   "exportName": "SylvaLivingWorldScene",
+   "runtime": "Three.js r149",
+   "category": "scene",
+   "sourceCommit": "SHA-256 fd922291297d",
+   "files": [
+    {
+     "path": "src/shaders/sylva-living-world/SylvaLivingWorldScene.tsx",
+     "kind": "code",
+     "bytes": 4077
+    },
+    {
+     "path": "src/shaders/sylva-living-world/sources/inner-green-3d.html",
+     "kind": "document",
+     "bytes": 197914
+    },
+    {
+     "path": "src/shaders/sylva-living-world/sources/inner-green-assets/three.min.js",
+     "kind": "shader",
+     "bytes": 608081
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "temple-night",
+   "exportName": "TempleNightScene",
+   "runtime": "Three.js r149",
+   "category": "scene",
+   "sourceCommit": "4399487d2fb42bce39c7b032fbbb50d230bf4f0b",
+   "files": [
+    {
+     "path": "src/shaders/temple-night/TempleNightScene.tsx",
+     "kind": "code",
+     "bytes": 3389
+    },
+    {
+     "path": "src/shaders/temple-night/templeNightRenderer.js",
+     "kind": "shader",
+     "bytes": 124050
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "landscape",
+   "exportName": "LandscapeScene",
+   "runtime": "Three.js r149",
+   "category": "scene",
+   "sourceCommit": "e8aab488464bcd44471c390cf309597c6f3adb05",
+   "files": [
+    {
+     "path": "src/shaders/landscape/LandscapeScene.tsx",
+     "kind": "code",
+     "bytes": 2080
+    },
+    {
+     "path": "scripts/generate-landscape.mjs",
+     "kind": "code",
+     "bytes": 3702
+    },
+    {
+     "path": "public/landscape.html",
+     "kind": "document",
+     "bytes": 2428244
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "japanese-tower",
+   "exportName": "JapaneseTowerLandscape",
+   "runtime": "Three.js r149 + Canvas 2D",
+   "category": "scene",
+   "sourceCommit": "SHA-256 7810e7163c02",
+   "files": [
+    {
+     "path": "src/shaders/japanese-tower/JapaneseTowerLandscape.tsx",
+     "kind": "code",
+     "bytes": 1641
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "bookshelf",
+   "exportName": "BookshelfScene",
+   "runtime": "Three.js r165",
+   "category": "scene",
+   "sourceCommit": "6ef16625e670b0285bb689bdebffc1d728c6deb1",
+   "files": [
+    {
+     "path": "src/shaders/bookshelf/BookshelfScene.tsx",
+     "kind": "code",
+     "bytes": 3645
+    },
+    {
+     "path": "src/shaders/bookshelf/bookshelfRenderer.js",
+     "kind": "renderer",
+     "bytes": 863153
+    },
+    {
+     "path": "src/shaders/bookshelf/three165/OrbitControls.js",
+     "kind": "code",
+     "bytes": 32586
+    },
+    {
+     "path": "src/shaders/bookshelf/three165/RoomEnvironment.js",
+     "kind": "code",
+     "bytes": 3965
+    },
+    {
+     "path": "src/shaders/bookshelf/three165/RoundedBoxGeometry.js",
+     "kind": "code",
+     "bytes": 4983
+    },
+    {
+     "path": "src/shaders/bookshelf/three165/RectAreaLightUniformsLib.js",
+     "kind": "code",
+     "bytes": 314232
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "structure-flow",
+   "exportName": "StructureFlowCollection",
+   "runtime": "Three.js r128–r160",
+   "category": "data",
+   "sourceCommit": "SHA-256 40eb5bac81e3",
+   "files": [
+    {
+     "path": "src/shaders/structure-flow/StructureFlowCollection.tsx",
+     "kind": "code",
+     "bytes": 6508
+    },
+    {
+     "path": "src/shaders/structure-flow/StructureFlowBackground.tsx",
+     "kind": "code",
+     "bytes": 2020
+    },
+    {
+     "path": "src/shaders/structure-flow/structureFlowRenderer.ts",
+     "kind": "renderer",
+     "bytes": 2212
+    },
+    {
+     "path": "src/shaders/structure-flow/three128.d.ts",
+     "kind": "code",
+     "bytes": 87
+    }
+   ],
+   "inBatch": true
+  },
+  {
+   "id": "warp-field",
+   "exportName": "WarpFieldBackground",
+   "runtime": "Three.js r128",
+   "category": "background",
+   "sourceCommit": "SHA-256 bd7c486164d8",
+   "files": [
+    {
+     "path": "src/shaders/warp-field/WarpFieldBackground.tsx",
+     "kind": "code",
+     "bytes": 1831
+    },
+    {
+     "path": "src/shaders/warp-field/warpFieldRenderer.ts",
+     "kind": "renderer",
+     "bytes": 22681
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "engraved-certificate",
+   "exportName": "EngravedCertificate",
+   "runtime": "Canvas 2D + DOM/CSS",
+   "category": "data",
+   "sourceCommit": "SHA-256 dc48266f23df",
+   "files": [
+    {
+     "path": "src/shaders/neuform-isolated/sources/kinetic-lathe-certificate.html",
+     "kind": "document",
+     "bytes": 15442
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "woven-cloth",
+   "exportName": "WovenCloth",
+   "runtime": "Three.js r160",
+   "category": "visual",
+   "sourceCommit": "SHA-256 9bfd56ef7579",
+   "files": [
+    {
+     "path": "src/shaders/woven-cloth/WovenCloth.tsx",
+     "kind": "code",
+     "bytes": 2993
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/lumina-weavers-cloth.html",
+     "kind": "document",
+     "bytes": 17470
+    },
+    {
+     "path": "src/shaders/woven-cloth/woven-cloth-iridescent.html",
+     "kind": "document",
+     "bytes": 21728
+    },
+    {
+     "path": "src/shaders/woven-cloth/woven-cloth-atelier.html",
+     "kind": "document",
+     "bytes": 18979
+    },
+    {
+     "path": "src/shaders/woven-cloth/woven-cloth-washi.html",
+     "kind": "document",
+     "bytes": 18332
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "performance-gauges",
+   "exportName": "PerformanceGauges",
+   "runtime": "DOM + CSS",
+   "category": "data",
+   "sourceCommit": "SHA-256 2dc25058fc85",
+   "files": [
+    {
+     "path": "src/shaders/neuform-isolated/sources/performance-gauges.html",
+     "kind": "document",
+     "bytes": 45113
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "uplink-loader",
+   "exportName": "UplinkLoader",
+   "runtime": "DOM + CSS + JavaScript",
+   "category": "ui",
+   "sourceCommit": "SHA-256 f73bb2963501",
+   "files": [
+    {
+     "path": "src/shaders/uplink-loader/UplinkLoader.tsx",
+     "kind": "code",
+     "bytes": 1075
+    },
+    {
+     "path": "src/shaders/uplink-loader/uplink-loader.html",
+     "kind": "document",
+     "bytes": 16032
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "koi-studies",
+   "exportName": "KoiStudies",
+   "runtime": "DOM + CSS 3D + Canvas 2D + WebGL",
+   "category": "visual",
+   "sourceCommit": "SHA-256 32cf6493414a",
+   "files": [
+    {
+     "path": "src/shaders/koi-studies/KoiStudies.tsx",
+     "kind": "code",
+     "bytes": 1171
+    },
+    {
+     "path": "public/synthralos-halftone.html",
+     "kind": "document",
+     "bytes": 16844021
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "article-headings",
+   "exportName": "TextAnimationCollection",
+   "runtime": "DOM/CSS + Canvas 2D",
+   "category": "data",
+   "sourceCommit": "5a736cd3c1f6f19802f61ebb10e1701b9f7aa26e / SHA-256 e14795f24ea8 / 8d2cfccf1140 / 26f0d8d04494 / 1545c354af8d",
+   "files": [
+    {
+     "path": "src/shaders/article-headings/TextAnimationCollection.tsx",
+     "kind": "code",
+     "bytes": 2918
+    },
+    {
+     "path": "src/shaders/article-headings/ArticleHeadings.tsx",
+     "kind": "code",
+     "bytes": 2004
+    },
+    {
+     "path": "src/shaders/article-headings/articleHeadingDecode.ts",
+     "kind": "code",
+     "bytes": 3340
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/glassblown-neon.html",
+     "kind": "document",
+     "bytes": 17198
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/creator-studio-intro.html",
+     "kind": "document",
+     "bytes": 57430
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/epilude-footer.html",
+     "kind": "document",
+     "bytes": 15643
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/audio-wordmark.html",
+     "kind": "document",
+     "bytes": 17440
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "animated-top-dock",
+   "exportName": "AnimatedTopDock",
+   "runtime": "DOM + CSS + WebGL + Three.js r128",
+   "category": "ui",
+   "sourceCommit": "5a736cd3c1f6f19802f61ebb10e1701b9f7aa26e",
+   "files": [
+    {
+     "path": "src/shaders/animated-top-dock/AnimatedTopDock.tsx",
+     "kind": "code",
+     "bytes": 16200
+    },
+    {
+     "path": "src/shaders/animated-top-dock/topDockController.ts",
+     "kind": "code",
+     "bytes": 10664
+    },
+    {
+     "path": "src/shaders/animated-top-dock/retroPixelField.ts",
+     "kind": "shader",
+     "bytes": 7469
+    },
+    {
+     "path": "src/shaders/animated-top-dock/glassParticleField.ts",
+     "kind": "shader",
+     "bytes": 11896
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "sketchbook",
+   "exportName": "Sketchbook",
+   "runtime": "DOM + CSS 3D",
+   "category": "visual",
+   "sourceCommit": "3938bc8def563f89ed587e52ac35ddc056c0a5f0",
+   "files": [
+    {
+     "path": "src/shaders/sketchbook/Sketchbook.tsx",
+     "kind": "code",
+     "bytes": 844
+    },
+    {
+     "path": "src/shaders/sketchbook/sketchbookDocument.js",
+     "kind": "code",
+     "bytes": 49373
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "constellation-field",
+   "exportName": "ConstellationField",
+   "runtime": "Canvas 2D + Raw WebGL",
+   "category": "background",
+   "sourceCommit": "SHA-256 1920ad4fe34f",
+   "files": [
+    {
+     "path": "src/shaders/constellation-field/ConstellationField.tsx",
+     "kind": "code",
+     "bytes": 1229
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/constellation-field.html",
+     "kind": "document",
+     "bytes": 17100
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/particle-drift.html",
+     "kind": "document",
+     "bytes": 14811
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/particle-network.html",
+     "kind": "document",
+     "bytes": 13776
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/gateway-flow.html",
+     "kind": "document",
+     "bytes": 17251
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/connectivity-graph.html",
+     "kind": "document",
+     "bytes": 13241
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/interface-lines.html",
+     "kind": "document",
+     "bytes": 18496
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/defense-lines.html",
+     "kind": "document",
+     "bytes": 14543
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/topo-field.html",
+     "kind": "document",
+     "bytes": 20227
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "portal-field",
+   "exportName": "PortalFieldCollection",
+   "runtime": "Three.js r134 + Raw WebGL + Canvas 2D",
+   "category": "background",
+   "sourceCommit": "SHA-256 f90e34f83d51",
+   "files": [
+    {
+     "path": "src/shaders/portal-field/PortalFieldCollection.tsx",
+     "kind": "code",
+     "bytes": 2929
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/portal-field.html",
+     "kind": "document",
+     "bytes": 20206
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/flow-field.html",
+     "kind": "document",
+     "bytes": 10590
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/strata-cloud.html",
+     "kind": "document",
+     "bytes": 23819
+    },
+    {
+     "path": "src/shaders/bell-field/BellFieldBackground.tsx",
+     "kind": "code",
+     "bytes": 7085
+    },
+    {
+     "path": "src/shaders/bell-field/bellFieldShaders.ts",
+     "kind": "shader",
+     "bytes": 3230
+    },
+    {
+     "path": "src/shaders/stream-convergence/StreamConvergenceBackground.tsx",
+     "kind": "shader",
+     "bytes": 4190
+    },
+    {
+     "path": "src/shaders/stream-convergence/streamConvergenceShaders.ts",
+     "kind": "shader",
+     "bytes": 2078
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "diagnostics-panel",
+   "exportName": "DiagnosticsPanel",
+   "runtime": "Canvas 2D",
+   "category": "data",
+   "sourceCommit": "SHA-256 6d05694bf006",
+   "files": [
+    {
+     "path": "src/shaders/neuform-isolated/sources/diagnostics-panel.html",
+     "kind": "document",
+     "bytes": 21170
+    }
+   ],
+   "inBatch": true
+  },
+  {
+   "id": "skeuomorphic-toggle",
+   "exportName": "SkeuomorphicToggleCollection",
+   "runtime": "DOM/CSS + Three.js + Raw WebGL",
+   "category": "ui",
+   "sourceCommit": "SHA-256 3e19e7fec9ac",
+   "files": [
+    {
+     "path": "src/shaders/skeuomorphic-toggle/SkeuomorphicToggleCollection.tsx",
+     "kind": "code",
+     "bytes": 2333
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/ModernToggle.tsx",
+     "kind": "code",
+     "bytes": 5394
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/modern-toggle.css",
+     "kind": "style",
+     "bytes": 6316
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/GlassToggle.tsx",
+     "kind": "code",
+     "bytes": 5401
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/glassToggleScene.ts",
+     "kind": "shader",
+     "bytes": 23841
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/glass-toggle.css",
+     "kind": "style",
+     "bytes": 2718
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/ShaderToggle.tsx",
+     "kind": "code",
+     "bytes": 5253
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/shaderToggleScene.ts",
+     "kind": "code",
+     "bytes": 6726
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/shaderToggleGlsl.ts",
+     "kind": "shader",
+     "bytes": 12519
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/shader-toggle.css",
+     "kind": "style",
+     "bytes": 2751
+    },
+    {
+     "path": "src/shaders/skeuomorphic-toggle/toggleMode.ts",
+     "kind": "code",
+     "bytes": 1870
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/skeuomorphic-toggle.html",
+     "kind": "document",
+     "bytes": 11066
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "matrix-field",
+   "exportName": "LaserCollection",
+   "runtime": "Raw WebGL",
+   "category": "background",
+   "sourceCommit": "SHA-256 70cc015d5175",
+   "files": [
+    {
+     "path": "src/shaders/laser/LaserCollection.tsx",
+     "kind": "code",
+     "bytes": 1194
+    },
+    {
+     "path": "src/shaders/laser/LaserVariants.tsx",
+     "kind": "code",
+     "bytes": 8797
+    },
+    {
+     "path": "src/shaders/laser/laserShaders.ts",
+     "kind": "shader",
+     "bytes": 8654
+    },
+    {
+     "path": "src/shaders/neuform-isolated/sources/matrix-field.html",
+     "kind": "document",
+     "bytes": 21070
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "wireframe-forms",
+   "exportName": "WireframeForms",
+   "runtime": "Canvas 2D",
+   "category": "visual",
+   "sourceCommit": "SHA-256 828c6a635b54",
+   "files": [
+    {
+     "path": "src/shaders/neuform-isolated/sources/wireframe-forms.html",
+     "kind": "document",
+     "bytes": 20626
+    }
+   ],
+   "inBatch": false
+  },
+  {
+   "id": "brand-orbs",
+   "exportName": "BrandOrbs",
+   "runtime": "Canvas 2D",
+   "category": "background",
+   "sourceCommit": "SHA-256 c2733de8cf7b",
+   "files": [
+    {
+     "path": "src/shaders/brand-orbs/BrandOrbs.tsx",
+     "kind": "code",
+     "bytes": 7932
+    },
+    {
+     "path": "src/shaders/brand-orbs/sources/brand-orbs-v2.html",
+     "kind": "document",
+     "bytes": 158401
+    }
+   ],
+   "inBatch": false
+  }
+ ]
+}

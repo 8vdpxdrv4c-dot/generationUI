@@ -1,0 +1,95 @@
+"use client"
+
+import { Activity, TrendingUp } from "lucide-react"
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+
+export const description = "面积图 · 阶梯示例"
+
+const chartData = [
+  { month: "1月", desktop: 186 },
+  { month: "2月", desktop: 305 },
+  { month: "3月", desktop: 237 },
+  { month: "4月", desktop: 73 },
+  { month: "5月", desktop: 209 },
+  { month: "6月", desktop: 214 },
+]
+
+const chartConfig = {
+  desktop: {
+    label: "桌面端",
+    color: "var(--chart-1)",
+    icon: Activity,
+  },
+} satisfies ChartConfig
+
+export function ChartAreaStep() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>面积图 · 阶梯</CardTitle>
+        <CardDescription>
+          最近六个月的访客总数
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <AreaChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Area
+              dataKey="desktop"
+              type="step"
+              fill="var(--color-desktop)"
+              fillOpacity={0.4}
+              stroke="var(--color-desktop)"
+            />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 leading-none font-medium">
+              本月增长 5.2% <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="flex items-center gap-2 leading-none text-muted-foreground">
+              2024年1月至6月
+            </div>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
