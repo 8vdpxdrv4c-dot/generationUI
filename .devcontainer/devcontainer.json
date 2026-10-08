@@ -1,0 +1,27 @@
+{
+  "name": "Generation UI cloud demo",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "remoteUser": "node",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Generation UI demo", "onAutoForward": "notify" },
+    "8123": { "label": "Internal Python Agent", "onAutoForward": "ignore" }
+  },
+  "remoteEnv": {
+    "LANGGRAPH_DEPLOYMENT_URL": "http://127.0.0.1:8123",
+    "LLM_MODEL": "deepseek-chat",
+    "DEEPSEEK_BASE_URL": "https://api.deepseek.com"
+  },
+  "secrets": {
+    "DEEPSEEK_API_KEY": {
+      "description": "DeepSeek API key used by the Python Agent. Keep it in Codespaces secrets, never in Git."
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "waitFor": "postCreateCommand"
+}

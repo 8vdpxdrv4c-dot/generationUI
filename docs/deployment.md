@@ -1,5 +1,31 @@
 # Deployment
 
+## GitHub Codespaces demo
+
+The `.devcontainer` configuration runs the complete Next.js app and Python Agent
+in one Codespace with Node 22 and Python 3.12. Use a 2-core machine to conserve
+the personal account's included compute quota. Codespaces is for development
+and demonstrations: idle timeouts and quota limits can stop the demo.
+
+1. Create a Codespace from your repository's `main` branch. Set the recommended
+   `DEEPSEEK_API_KEY` secret for this repository to enable AI generation.
+2. Wait for dependency installation and the production Next.js build. Startup
+   launches Next.js on port 3000 and the Agent on loopback port 8123.
+3. In the **Ports** panel, set port **3000** to **Public**, then copy its HTTPS
+   forwarded address. Keep port 8123 private. Only share a fresh demo without
+   private uploads or conversations: the application has no user accounts.
+4. Stop the Codespace when the demonstration ends to conserve compute time.
+
+On subsequent starts, the processes launch automatically without rebuilding.
+To rebuild after source changes, stop the launcher and its children, run
+`bash .devcontainer/setup.sh`, then `bash .devcontainer/start.sh`.
+Logs are in `.data/codespaces-demo/`. If a model secret was added or changed,
+stop and restart the Codespace to load it. Without a key, the website starts
+but AI generation is unavailable. Secrets are never bundled into browser code.
+Saved history and uploads live in `/workspaces/.../.data` and survive stop/start;
+deleting the Codespace deletes that data. Temporary agent checkpoints reset
+when its process restarts. Model API charges are separate from hosting quotas.
+
 ## Render
 
 The project includes a `render.yaml` for one-click deployment to [Render](https://render.com/).
