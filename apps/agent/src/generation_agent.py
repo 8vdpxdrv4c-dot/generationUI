@@ -12,15 +12,29 @@ logger = logging.getLogger(__name__)
 def normalize_generation_input(input_data):
     messages = []
     latest_ui = None
+    selected_ui = None
+    selected_id = (input_data.state or {}).get("selected_generated_ui_id")
     for message in input_data.messages:
         if message.role == "activity":
             if getattr(message, "activity_type", None) == "open-generative-ui":
                 latest_ui = {"id": message.id, "content": message.content}
+                if message.id == selected_id:
+                    selected_ui = latest_ui
             continue
         messages.append(message)
     state = dict(input_data.state or {})
-    if latest_ui is not None:
-        state["current_generated_ui"] = latest_ui
+    explicit_ui = state.get("current_generated_ui")
+    # Frontend shared state survives adapters which remove activity messages.
+    # A matching explicit selection is newer than replayed generation snapshots.
+    current_ui = explicit_ui if (isinstance(explicit_ui, dict) and explicit_ui.get("id") == selected_id
+        and isinstance(explicit_ui.get("content"), dict)) else selected_ui or latest_ui
+    if current_ui is not None:
+        content = dict(current_ui["content"])
+        edited_html = content.pop("editedHtml", None)
+        content.pop("editRevision", None)
+        if isinstance(edited_html, str):
+            content["html"] = [edited_html]
+        state["current_generated_ui"] = {**current_ui, "content": content}
     return input_data.model_copy(update={"messages": messages, "state": state})
 
 

@@ -31,6 +31,9 @@ import {
 import { runSandboxExpression } from "./sandbox-execution";
 import { completedContentError } from "./content-validation";
 import { localizeResourceReferences } from "@repo/design-system";
+import { applyPageEdit, prepareEditableHtml, isEditorSnapshot, type PageEdit, type EditorSnapshot, type EditorCommand } from "./editor-source";
+import { editorRuntimeScript } from "./editor-runtime";
+import { EditorToolbar } from "./editor-toolbar";
 
 export const THROTTLE_MS = 1000;
 
@@ -87,6 +90,7 @@ function shouldFlushImmediately(
   if (next.jsFunctionsComplete && !prev?.jsFunctionsComplete) return true;
   if (next.jsExpressionsComplete && !prev?.jsExpressionsComplete) return true;
   if (next.error !== prev?.error) return true;
+  if (next.editRevision !== prev?.editRevision) return true;
   if (next.jsFunctions && (!prev || !prev.jsFunctions)) return true;
   if ((next.jsExpressions?.length ?? 0) > (prev?.jsExpressions?.length ?? 0))
     return true;
@@ -113,7 +117,7 @@ export const OpenGenUIActivityRenderer: React.FC<OpenGenUIActivityRendererProps>
   };
 
 const ThrottledActivityRenderer: React.FC<OpenGenUIActivityRendererProps> =
-  function OpenGenUIActivityRenderer({ content }) {
+  function OpenGenUIActivityRenderer({ content, message }) {
     const [throttledContent, setThrottledContent] =
       useState<OpenGenUIContent>(content);
     const [prevContent, setPrevContent] = useState(content);
@@ -159,11 +163,12 @@ const ThrottledActivityRenderer: React.FC<OpenGenUIActivityRendererProps> =
       };
     }, []);
 
-    return <OpenGenUIActivityRendererInner content={throttledContent} />;
+    return <OpenGenUIActivityRendererInner content={throttledContent} messageId={(message as { id?: string })?.id} />;
   };
 
 interface InnerProps {
   content: OpenGenUIContent;
+  messageId?: string;
 }
 
 function styleIframe(iframe: HTMLIFrameElement) {
@@ -174,8 +179,23 @@ function styleIframe(iframe: HTMLIFrameElement) {
 }
 
 const OpenGenUIActivityRendererInner = React.memo(
-  function OpenGenUIActivityRendererInner({ content }: InnerProps) {
+  function OpenGenUIActivityRendererInner({ content, messageId }: InnerProps) {
     const preview = useContext(GenerationPreviewContext);
+    const editing = preview?.editing;
+    const editingRef = useRef(editing);
+    editingRef.current = editing;
+    const editable = !!editing && !!messageId;
+    const [editingEnabled, setEditingEnabled] = useState(true);
+    const [editorSnapshot, setEditorSnapshot] = useState<EditorSnapshot>({ selection: null, canUndo: false, canRedo: false });
+    const [editorReady, setEditorReady] = useState(false);
+    const [editorError, setEditorError] = useState<string | null>(null);
+    const editorErrorRef = useRef<string | null>(null);
+    const editorChannel = useRef("");
+    const pendingToolbar = useRef<Promise<void> | null>(null);
+    const [toolbarBusy, setToolbarBusy] = useState(false);
+    const effectiveHtml = content.editedHtml ?? (content.html ?? []).join("");
+    const effectiveHtmlRef = useRef(effectiveHtml);
+    effectiveHtmlRef.current = effectiveHtml;
     const sizingMode = resolveSizingMode((content.html ?? []).join(""), !!preview);
     const [viewportHeight, setViewportHeight] = useState(0);
     const initialHeight = validContentHeight(content.initialHeight, sizingMode) ?? 200;
@@ -240,6 +260,65 @@ const OpenGenUIActivityRendererInner = React.memo(
     const pumpRef = useRef<() => void>(() => {});
     const sizingRef = useRef({ mode: sizingMode, viewportHeight });
 
+    // Source + nonce validation is required: the frame has an opaque origin.
+    useEffect(() => {
+      if (!editable) return;
+      const receive = (event: MessageEvent) => {
+        if (event.source !== sandboxRef.current?.iframe.contentWindow || event.data?.channel !== editorChannel.current) return;
+        if (event.data?.type === "__ogui_editor_state") {
+          if (isEditorSnapshot(event.data.snapshot)) setEditorSnapshot(event.data.snapshot);
+          return;
+        }
+        if (event.data?.type !== "__ogui_edit") return;
+        try {
+          editingRef.current?.commit(messageId!, event.data.edit as PageEdit);
+          effectiveHtmlRef.current = applyPageEdit(effectiveHtmlRef.current, event.data.edit as PageEdit);
+          editorErrorRef.current = null;
+          setEditorError(null);
+        } catch (error) {
+          editorErrorRef.current = error instanceof Error ? error.message : "无法同步页面修改";
+          setEditorError(editorErrorRef.current);
+        }
+      };
+      window.addEventListener("message", receive);
+      return () => window.removeEventListener("message", receive);
+    }, [editable, messageId]);
+
+    const executeEditor = useCallback(async (command?: EditorCommand) => {
+      const sandbox = sandboxRef.current;
+      if (!sandbox || !sandboxReadyRef.current || !editorChannel.current) {
+        if (command) throw new Error("页面已切换，请重新选择元素");
+        return;
+      }
+      const channel = editorChannel.current;
+      const request = crypto.randomUUID();
+      await new Promise<void>((resolve, reject) => {
+        const finish = (error?: Error) => { clearTimeout(timeout); window.removeEventListener("message", receive); error ? reject(error) : resolve(); };
+        const receive = (event: MessageEvent) => {
+          if (event.source === sandbox.iframe.contentWindow && event.data?.channel === channel && event.data?.type === "__ogui_edit_flushed" && event.data.request === request) finish(editorErrorRef.current ? new Error(editorErrorRef.current) : undefined);
+        };
+        const timeout = setTimeout(() => finish(new Error("页面编辑同步超时，请重试")), 4000);
+        window.addEventListener("message", receive);
+        const operation = command ? `command(${JSON.stringify(command)})` : "flush()";
+        void sandbox.run(`window.__oguiEditor?.${operation};parent.postMessage({type:"__ogui_edit_flushed",channel:${JSON.stringify(channel)},request:${JSON.stringify(request)}},"*");`).catch(error => finish(error instanceof Error ? error : new Error("无法同步页面编辑")));
+      });
+    }, []);
+    const flushEditor = useCallback(async () => {
+      if (pendingToolbar.current) await pendingToolbar.current;
+      await executeEditor();
+    }, [executeEditor]);
+
+    useEffect(() => {
+      if (!editable || !editing || !messageId) return;
+      return editing.register(messageId, { flush: flushEditor });
+    }, [editable, editing?.register, messageId, flushEditor]);
+
+    useEffect(() => {
+      if (!editorReady) return;
+      const enabled = editingEnabled && !editing?.isRunning && content.generating === false;
+      void sandboxRef.current?.run(`window.__oguiEditor?.enable(${JSON.stringify(enabled)});`);
+    }, [editingEnabled, editing?.isRunning, editorReady, content.generating]);
+
     // Observe the scroll viewport, not the content whose height we are changing.
     useEffect(() => {
       if (sizingMode !== "page") return;
@@ -247,14 +326,18 @@ const OpenGenUIActivityRendererInner = React.memo(
       const measure = () => {
         const style = viewport ? getComputedStyle(viewport) : null;
         const padding = style ? (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0) : 0;
-        setViewportHeight(Math.max(0, (viewport?.clientHeight ?? window.innerHeight) - padding));
+        const toolbar = containerRef.current?.parentElement?.querySelector<HTMLElement>("[data-ogui-toolbar]");
+        const toolsHeight = toolbar ? toolbar.offsetHeight + (parseFloat(getComputedStyle(toolbar).marginBottom) || 0) : 0;
+        setViewportHeight(Math.max(0, (viewport?.clientHeight ?? window.innerHeight) - padding - toolsHeight));
       };
       measure();
       const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
       if (viewport) observer?.observe(viewport);
+      const toolbar = containerRef.current?.parentElement?.querySelector<HTMLElement>("[data-ogui-toolbar]");
+      if (toolbar) observer?.observe(toolbar);
       window.addEventListener("resize", measure);
       return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
-    }, [sizingMode, preview?.target]);
+    }, [sizingMode, preview?.target, editingEnabled, editorReady]);
 
     useEffect(() => {
       sizingRef.current = { mode: sizingMode, viewportHeight };
@@ -358,6 +441,10 @@ const OpenGenUIActivityRendererInner = React.memo(
       executionFailedRef.current = false;
       const abort = new AbortController();
       abortRef.current = abort;
+      setEditorReady(false);
+      const channel = editable ? crypto.randomUUID() : "";
+      editorChannel.current = channel;
+      const prepared = editable ? prepareEditableHtml(repairGeneratedJavaScript(effectiveHtmlRef.current)) : null;
 
       loadWebsandbox()
         .then((Websandbox) => {
@@ -366,18 +453,24 @@ const OpenGenUIActivityRendererInner = React.memo(
           setRuntimeError(null);
           const sandbox = Websandbox.create(localApi, {
             frameContainer: container,
-            frameContent: buildFinalFrameContent(fullHtml, css, window.location.origin),
+            frameContent: buildFinalFrameContent(prepared?.html ?? fullHtml, css, window.location.origin),
             allowAdditionalAttributes: "",
           });
           sandboxRef.current = sandbox;
           styleIframe(sandbox.iframe);
 
-          sandbox.promise.then(() => {
+          sandbox.promise.then(async () => {
             if (cancelled) return;
             sandboxReadyRef.current = true;
 
             sandbox.run(MEASUREMENT_JS);
             sandbox.run(sizingConfiguration(sizingRef.current.mode, sizingRef.current.viewportHeight));
+
+            if (prepared) {
+              await sandbox.run(editorRuntimeScript(prepared.nodes, channel));
+              if (cancelled) return;
+              setEditorReady(true);
+            }
 
             pumpRef.current();
           });
@@ -401,7 +494,7 @@ const OpenGenUIActivityRendererInner = React.memo(
         sandboxReadyRef.current = false;
         setAutoHeight(null);
       };
-    }, [fullHtml, css, localApi]);
+    }, [fullHtml, css, localApi, editable]);
 
     // One execution queue per frame: async initialization must finish before
     // subsequent expressions bind buttons or inspect the scene.
@@ -470,12 +563,12 @@ const OpenGenUIActivityRendererInner = React.memo(
         isComplete
           ? assembleStandaloneHtmlFromActivity({
               css: content.css,
-              html: fullHtml ? [fullHtml] : content.html,
+              html: [repairGeneratedJavaScript(effectiveHtml)],
               jsFunctions,
               jsExpressions,
             }, "generated-widget", typeof window === "undefined" ? undefined : window.location.origin)
           : undefined,
-      [isComplete, content, fullHtml, jsFunctions, jsExpressions]
+      [isComplete, content, effectiveHtml, jsFunctions, jsExpressions]
     );
 
     // The page's *source*, in the same shape the generateSandboxedUi contract
@@ -487,12 +580,12 @@ const OpenGenUIActivityRendererInner = React.memo(
           ? {
               format: "sandboxed-ui",
               css: content.css ?? "",
-              html: fullHtml ?? (content.html ?? []).join(""),
+              html: repairGeneratedJavaScript(effectiveHtml),
               jsFunctions,
               jsExpressions,
             }
           : undefined,
-      [isComplete, content, fullHtml, jsFunctions, jsExpressions]
+      [isComplete, content, effectiveHtml, jsFunctions, jsExpressions]
     );
 
     // A redesign started in the sidebar leaves a marker. The first page that
@@ -523,6 +616,7 @@ const OpenGenUIActivityRendererInner = React.memo(
     }, [isComplete, pageSource, mountTime]);
 
     const frame = (<>
+      {editorError && <p role="alert" className="text-xs text-red-600">{editorError}</p>}
       {(outputError || runtimeError) && <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">{outputError || runtimeError}</div>}
       <div
         ref={containerRef}
@@ -587,10 +681,31 @@ const OpenGenUIActivityRendererInner = React.memo(
         source={pageSource}
         componentType="openGenUI"
         ready={isComplete}
+        prepareExport={editable ? async () => {
+          await flushEditor();
+          const source: DesignSource = { format: "sandboxed-ui", css: content.css ?? "", html: repairGeneratedJavaScript(effectiveHtmlRef.current), jsFunctions, jsExpressions };
+          return { source, html: assembleStandaloneHtmlFromActivity({ ...source, html: [source.html] }, "generated-widget", window.location.origin) };
+        } : undefined}
+        editorActions={editable ? <>
+          <button type="button" aria-pressed={editingEnabled} disabled={!isComplete || !editorReady || editing?.isRunning || toolbarBusy}
+            className="rounded-lg border px-2.5 py-2 text-xs disabled:opacity-40" onClick={() => setEditingEnabled(value => !value)}>
+            {editingEnabled ? "交互预览" : "返回编辑"}
+          </button>
+          <span role="status" className="text-xs opacity-70">
+            {editing?.saveState === "saving" ? "保存中…" : editing?.saveState === "saved" ? "已自动保存" : ""}
+          </span>
+          {editing?.saveState === "error" && <button type="button" className="text-xs text-red-600" onClick={editing.retry}>保存失败，重试</button>}
+        </> : undefined}
       >
+        {editable && isComplete && editingEnabled && <EditorToolbar snapshot={editorSnapshot} command={executeEditor} disabled={!editorReady || !!editing?.isRunning} onPending={operation => {
+          pendingToolbar.current = operation;
+          setToolbarBusy(true);
+          const clear = () => { if (pendingToolbar.current === operation) { pendingToolbar.current = null; setToolbarBusy(false); } };
+          void operation.then(clear, clear);
+        }} />}
         {frame}
       </ExportOverlay>
     );
   },
-  (prev, next) => prev.content === next.content
+  (prev, next) => prev.content === next.content && prev.messageId === next.messageId
 );

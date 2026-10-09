@@ -25,6 +25,8 @@ interface ExportOverlayProps {
   componentType: "openGenUI" | "barChart" | "pieChart";
   ready?: boolean;
   children: ReactNode;
+  editorActions?: ReactNode;
+  prepareExport?: () => Promise<{ source: DesignSource; html: string }>;
 }
 
 export function ExportOverlay({
@@ -35,6 +37,8 @@ export function ExportOverlay({
   componentType,
   ready = true,
   children,
+  editorActions,
+  prepareExport,
 }: ExportOverlayProps) {
   const { agent } = useAgent();
   const preview = useContext(GenerationPreviewContext);
@@ -52,6 +56,16 @@ export function ExportOverlay({
   const [historyState, setHistoryState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [pageSaveState, setPageSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedPageId, setSavedPageId] = useState<string | null>(null);
+  const [nextViewId, setNextViewId] = useState<string | null>(null);
+  const [viewState, setViewState] = useState<"idle" | "preparing" | "error">("idle");
+  const openingView = useRef(false);
+
+  useEffect(() => { setNextViewId(crypto.randomUUID()); }, []);
+
+  useEffect(() => {
+    setPageSaveState("idle");
+    setSavedPageId(null);
+  }, [source, html]);
 
   // Close menu on outside click
   useEffect(() => {
@@ -79,15 +93,21 @@ export function ExportOverlay({
     return null;
   }, [componentType, html, componentData]);
 
-  const handleDownload = useCallback(() => {
-    if (!exportHtml) return;
-    const filename = `${slugify(title) || "visualization"}.html`;
-    triggerDownload(exportHtml, filename);
-    setMenuOpen(false);
-  }, [exportHtml, title]);
+  const latestExport = useCallback(async () => prepareExport ? prepareExport() : { source, html: exportHtml }, [prepareExport, source, exportHtml]);
 
-  const handleCopy = useCallback(() => {
-    const textToCopy = exportHtml;
+  const handleDownload = useCallback(async () => {
+    if (!exportHtml) return;
+    let data;
+    try { data = await latestExport(); } catch { setPageSaveState("error"); return; }
+    const filename = `${slugify(title) || "visualization"}.html`;
+    if (data.html) triggerDownload(data.html, filename);
+    setMenuOpen(false);
+  }, [exportHtml, title, latestExport]);
+
+  const handleCopy = useCallback(async () => {
+    let data;
+    try { data = await latestExport(); } catch { setPageSaveState("error"); return; }
+    const textToCopy = data.html;
     if (!textToCopy) return;
     navigator.clipboard.writeText(textToCopy).then(
       () => {
@@ -100,10 +120,12 @@ export function ExportOverlay({
         setMenuOpen(false);
       }
     );
-  }, [exportHtml]);
+  }, [latestExport]);
 
-  const handleSaveTemplate = useCallback((kind: ReferenceKind) => {
+  const handleSaveTemplate = useCallback(async (kind: ReferenceKind) => {
     if (!exportHtml) return;
+    let data;
+    try { data = prepareExport ? await latestExport() : { html: exportHtml }; } catch { setPageSaveState("error"); return; }
     const existing = (agent.state?.templates as Array<{ id: string }> | undefined) ?? [];
     const name = title?.trim() || "未命名模板";
     const template = {
@@ -111,7 +133,7 @@ export function ExportOverlay({
       kind,
       name,
       description: `从生成结果保存：${name}`,
-      html: exportHtml,
+      html: data.html,
       data_description: componentData
         ? "Chart or structured component data"
         : "HTML widget markup",
@@ -127,45 +149,35 @@ export function ExportOverlay({
     setSaveState("saved");
     setMenuOpen(false);
     setTimeout(() => setSaveState("idle"), 1800);
-  }, [agent, exportHtml, title, componentData, componentType]);
+  }, [agent, exportHtml, title, componentData, componentType, latestExport, prepareExport]);
 
-  const handleOpenInNewWindow = useCallback(() => {
-    if (!exportHtml) return;
+  const handleOpenInNewWindow = useCallback(async (id: string) => {
     setMenuOpen(false);
-    const viewWindow = window.open("about:blank", "_blank");
-    if (viewWindow) viewWindow.opener = null;
-    (async () => {
-      try {
-        const res = await fetch("/api/view", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ html: exportHtml }),
-        });
-        if (res.ok) {
-          const { id } = await res.json();
-          if (id) {
-            if (viewWindow) viewWindow.location.href = `/view/${id}`;
-            return;
-          }
-        }
-        throw new Error("view store unavailable");
-      } catch {
-        // Fallback: open the standalone HTML directly via a blob URL.
-        const url = URL.createObjectURL(
-          new Blob([exportHtml], { type: "text/html" })
-        );
-        if (viewWindow) viewWindow.location.href = url;
-      }
-    })();
-  }, [exportHtml]);
-
-  const handleViewPage = useCallback(() => {
-    if (savedPageId) {
-      window.open(`/view/${savedPageId}`, "_blank", "noopener,noreferrer");
-      return;
+    setViewState("preparing");
+    try {
+      const { html: currentHtml } = await latestExport();
+      if (!currentHtml) throw new Error("empty preview");
+      const res = await fetch("/api/view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, html: currentHtml }),
+      });
+      if (!res.ok) throw new Error("view store unavailable");
+      setViewState("idle");
+    } catch {
+      setViewState("error");
+    } finally {
+      openingView.current = false;
+      // Keep href unchanged throughout the native click's default action.
+      // Rotating it inside onClick can make the browser open the next ID.
+      setNextViewId(crypto.randomUUID());
     }
-    handleOpenInNewWindow();
-  }, [handleOpenInNewWindow, savedPageId]);
+  }, [latestExport]);
+
+  const useSavedView = !!savedPageId && !prepareExport;
+  // A native link opens the real URL during the click, even when the browser
+  // doesn't expose a WindowProxy. The route waits for this immutable snapshot.
+  const viewHref = useSavedView ? `/view/${savedPageId}` : nextViewId ? `/view/${nextViewId}?pending=1` : undefined;
 
   /**
    * Best guess at the brief behind this page: the most recent thing the user
@@ -198,23 +210,24 @@ export function ExportOverlay({
     if (!exportHtml || historyState === "saving") return;
     setHistoryState("saving");
     try {
-      const payload = source
+      const data = await latestExport();
+      const payload = data.source
         ? {
-            source,
+            source: data.source,
             title: historyTitle.trim(),
             requirement: historyRequirement.trim(),
             componentType,
           }
-        : { html: exportHtml, title: historyTitle.trim(), componentType };
+        : { html: data.html, title: historyTitle.trim(), componentType };
       const res = await fetch("/api/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("save failed");
-      const data = (await res.json()) as { item?: { id?: string } };
-      if (data.item?.id) {
-        setSavedPageId(data.item.id);
+      const saved = (await res.json()) as { item?: { id?: string } };
+      if (saved.item?.id) {
+        setSavedPageId(saved.item.id);
         setPageSaveState("saved");
       }
       setHistoryState("saved");
@@ -225,50 +238,63 @@ export function ExportOverlay({
     } catch {
       setHistoryState("error");
     }
-  }, [exportHtml, source, historyTitle, historyRequirement, componentType, historyState]);
+  }, [exportHtml, latestExport, historyTitle, historyRequirement, componentType, historyState]);
 
   const handleQuickSave = useCallback(async () => {
     if ((!source && !exportHtml) || pageSaveState === "saving" || pageSaveState === "saved") return;
     setPageSaveState("saving");
     try {
+      const data = await latestExport();
       const suggestedTitle = title && title !== "generated-widget"
         ? title.trim()
-        : source
-          ? guessTitleFromSource(source)
+        : data.source
+          ? guessTitleFromSource(data.source)
           : "";
-      const payload = source
-        ? { source, title: suggestedTitle, requirement: lastUserMessage(), componentType }
-        : { html: exportHtml, title: suggestedTitle, componentType };
+      const payload = data.source
+        ? { source: data.source, title: suggestedTitle, requirement: lastUserMessage(), componentType }
+        : { html: data.html, title: suggestedTitle, componentType };
       const res = await fetch("/api/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("save failed");
-      const data = (await res.json()) as { item?: { id?: string } };
-      if (data.item?.id) setSavedPageId(data.item.id);
+      const saved = (await res.json()) as { item?: { id?: string } };
+      if (saved.item?.id) setSavedPageId(saved.item.id);
       setPageSaveState("saved");
       notifyHistoryChanged();
     } catch {
       setPageSaveState("error");
     }
-  }, [source, exportHtml, pageSaveState, title, lastUserMessage, componentType]);
+  }, [source, exportHtml, pageSaveState, title, lastUserMessage, componentType, latestExport]);
 
   const exportable = ready && !!exportHtml;
   const showTrigger = exportable && (!!actionsTarget || hovered || menuOpen);
 
   const actions = exportable && (
       <div className={`${actionsTarget ? "relative" : "absolute top-2 right-2"} z-10 flex shrink-0 items-center gap-1.5 whitespace-nowrap`}>
-        <button
-          type="button"
-          onClick={handleViewPage}
+        {editorActions}
+        <a
+          role="button"
+          href={viewHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={viewState === "preparing" || (!useSavedView && !nextViewId)}
+          onClick={event => {
+            if (openingView.current) { event.preventDefault(); return; }
+            if (useSavedView) return;
+            if (!nextViewId) { event.preventDefault(); return; }
+            openingView.current = true;
+            void handleOpenInNewWindow(nextViewId);
+          }}
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium shadow-md transition-colors hover:opacity-85"
           style={{ background: "var(--surface-primary, #fff)", border: "1px solid var(--color-border-glass, rgba(0,0,0,0.1))", color: "var(--text-primary, #1a1a1a)" }}
           title="在新窗口查看生成页面"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7" /><path d="M10 14 21 3" /><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" /></svg>
-          查看页面
-        </button>
+          {viewState === "preparing" ? "准备预览…" : viewState === "error" ? "重试查看" : "查看页面"}
+        </a>
+        {viewState === "error" && <span role="alert" className="text-xs text-red-600">预览生成失败，请重试</span>}
         <button
           type="button"
           onClick={handleQuickSave}

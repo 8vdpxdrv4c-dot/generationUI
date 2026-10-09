@@ -90,7 +90,9 @@ function preserveCompletedActivities(previous: unknown[], incoming: unknown[]): 
     // Stream snapshots and final saves may arrive out of order. Once a page is
     // complete, an earlier partial snapshot cannot erase its source or JS.
     if (saved.generating === false && saved.htmlComplete === true) {
-      return { ...next, content: { ...content, ...saved } };
+      const edits = Number(content.editRevision ?? 0) > Number(saved.editRevision ?? 0) && typeof content.editedHtml === "string"
+        ? { editedHtml: content.editedHtml, editRevision: content.editRevision } : {};
+      return { ...next, content: { ...content, ...saved, ...edits } };
     }
     return { ...next, content: { ...saved, ...content } };
   });

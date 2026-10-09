@@ -121,6 +121,33 @@ function runCallsContaining(needle: string) {
 }
 
 describe("OpenGenUIActivityRenderer", () => {
+  it("validates editor messages and keeps the live iframe when only edited source changes", async () => {
+    const target = document.createElement("div"); document.body.appendChild(target);
+    const commit = vi.fn();
+    const editing = { isRunning: false, saveState: "idle" as const, commit, register: () => () => {}, retry: vi.fn() };
+    const base = { generating: false, htmlComplete: true, cssComplete: true, html: ["<h1>原标题</h1>"] };
+    const element = (content: OpenGenUIContent) => <GenerationPreviewContext.Provider value={{ target, selectedId: "page", onSelect: vi.fn(), editing }}>
+      <OpenGenUIActivityRenderer activityType="open-generative-ui" content={content} message={{ id: "page" }} agent={{}} />
+    </GenerationPreviewContext.Provider>;
+    const view = render(element(base));
+    await flushImport(); await resolveSandboxReady();
+    const frame = mockIframe;
+    const script = mockRun.mock.calls.map(([code]) => String(code)).find(code => code.endsWith(',"data-ogui-edit-node");'))!;
+    const channel = script.match(/,"([^"]+)","data-ogui-edit-node"\);$/)![1];
+    const edit = { kind: "text", node: "0", index: 0, before: "原标题", value: "新标题" };
+    act(() => {
+      window.dispatchEvent(new MessageEvent("message", { source: window, data: { type: "__ogui_edit", channel, edit } }));
+      window.dispatchEvent(new MessageEvent("message", { source: frame.contentWindow, data: { type: "__ogui_edit", channel: "wrong", edit } }));
+    });
+    expect(commit).not.toHaveBeenCalled();
+    act(() => window.dispatchEvent(new MessageEvent("message", { source: frame.contentWindow, data: { type: "__ogui_edit", channel, edit } })));
+    expect(commit).toHaveBeenCalledWith("page", edit);
+    view.rerender(element({ ...base, editedHtml: "<h1>新标题</h1>", editRevision: 1 }));
+    await flushImport();
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+    expect(target.querySelector("iframe")).toBe(frame);
+    view.unmount(); target.remove();
+  });
   it("finds the latest sandbox result without selecting text messages", () => {
     expect(latestPreviewMessageId([
       { id: "old", activityType: "open-generative-ui" },

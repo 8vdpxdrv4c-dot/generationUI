@@ -61,6 +61,7 @@ class AgentState(BaseAgentState):
     pending_template: NotRequired[Optional[PendingTemplate]]
     pending_design_asset: NotRequired[Optional[PendingDesignAsset]]
     current_generated_ui: NotRequired[Optional[dict[str, Any]]]
+    selected_generated_ui_id: NotRequired[Optional[str]]
 
 @tool
 def manage_todos(todos: list[Todo], runtime: ToolRuntime) -> Command:

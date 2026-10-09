@@ -6,6 +6,13 @@ const original = { id: "preview-v1", role: "activity" };
 const revised = { id: "preview-v2", role: "activity" };
 
 describe("saved generation restoration", () => {
+  it("restores a newer manual edit of the same activity but preserves an unsaved local revision", () => {
+    const old = { ...original, content: { editRevision: 1, editedHtml: "old" } };
+    const edited = { ...original, content: { editRevision: 2, editedHtml: "edited" } };
+    expect(shouldRestoreGenerationMessages([user, old], [user, edited], false)).toBe(true);
+    expect(shouldRestoreGenerationMessages([user, edited], [user, old], false)).toBe(false);
+    expect(shouldRestoreGenerationMessages([user, edited], [user, edited], false)).toBe(false);
+  });
   it("restores a revised saved preview over the runtime's nonempty old clone", () => {
     expect(shouldRestoreGenerationMessages([user, original], [user, original, revised], false)).toBe(true);
   });

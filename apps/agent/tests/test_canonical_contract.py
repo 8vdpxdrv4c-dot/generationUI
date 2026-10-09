@@ -133,7 +133,9 @@ def test_reference_libraries_filter_seeds_and_legacy_records():
         ]}
     pages = templates.list_templates.func(runtime=Runtime(), kind="page")
     components = templates.list_templates.func(runtime=Runtime(), kind="component")
-    assert {item["id"] for item in pages} == {"old-page", "seed-dashboard-001"}
+    expected_pages = {item["id"] for item in templates.SEED_TEMPLATES if templates.reference_kind(item) == "page"}
+    assert {item["id"] for item in pages} == {"old-page", *expected_pages}
+    assert all(item["kind"] == "page" for item in pages)
     expected_components = {item["id"] for item in templates.SEED_TEMPLATES if templates.reference_kind(item) == "component"}
     assert {item["id"] for item in components} == {"old-chart", *expected_components}
     assert all(item["kind"] == "component" for item in components)

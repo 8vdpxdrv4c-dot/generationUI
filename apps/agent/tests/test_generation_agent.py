@@ -28,6 +28,33 @@ def test_restored_activity_is_not_sent_to_chat_converter_but_source_is_preserved
     assert "current_generated_ui" not in original.state
 
 
+def test_selected_page_manual_edits_are_the_next_model_baseline():
+    original = restored_input()
+    original.state["selected_generated_ui_id"] = "old"
+    original.messages[1].content.update(editedHtml="<h1>手动修改后的标题</h1>", editRevision=3)
+    normalized = normalize_generation_input(original)
+    assert normalized.state["current_generated_ui"]["id"] == "old"
+    assert normalized.state["current_generated_ui"]["content"]["html"] == ["<h1>手动修改后的标题</h1>"]
+    assert "editedHtml" not in normalized.state["current_generated_ui"]["content"]
+    assert original.messages[1].content["html"] == ["old"]
+
+
+def test_missing_selection_falls_back_to_latest_page_and_uses_edited_source():
+    original = restored_input()
+    original.state["selected_generated_ui_id"] = "missing"
+    original.messages[2].content.update(editedHtml="new edited", editRevision=1)
+    assert normalize_generation_input(original).state["current_generated_ui"]["content"]["html"] == ["new edited"]
+
+
+def test_explicit_selected_source_survives_filtered_or_stale_activity_messages():
+    original = restored_input()
+    original.state.update(selected_generated_ui_id="old", current_generated_ui={
+        "id": "old", "content": {"html": ["explicit latest source"]}})
+    assert normalize_generation_input(original).state["current_generated_ui"]["content"]["html"] == ["explicit latest source"]
+    original.messages = [message for message in original.messages if message.role != "activity"]
+    assert normalize_generation_input(original).state["current_generated_ui"]["content"]["html"] == ["explicit latest source"]
+
+
 def test_backend_exception_emits_run_error_instead_of_breaking_stream():
     async def failing_run(self, input):
         assert all(message.role != "activity" for message in input.messages)

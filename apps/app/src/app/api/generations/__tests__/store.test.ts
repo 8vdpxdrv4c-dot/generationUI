@@ -25,6 +25,14 @@ function save(messages: unknown[], status: "running" | "complete" = "complete") 
   return saveGenerationSession({ id: "test", title: "test", status, messages });
 }
 describe("generation persistence", () => {
+  it("saves manual edits and rejects stale revisions without replacing generated JS", () => {
+    save([user, complete]);
+    const latest = { ...complete, content: { ...complete.content, editedHtml: "<canvas style='translate:10px 20px'></canvas>", editRevision: 2 } };
+    expect(save([user, latest]).messages[1]).toEqual(latest);
+    save([user, { ...latest, content: { ...latest.content, editedHtml: "old", editRevision: 1 } }]);
+    save([user, complete]);
+    expect(getGenerationSession("test")?.messages[1]).toEqual(latest);
+  });
   it("rejects empty and stale thread clones without losing completed history", () => {
     save([user, complete]);
     save([], "running");

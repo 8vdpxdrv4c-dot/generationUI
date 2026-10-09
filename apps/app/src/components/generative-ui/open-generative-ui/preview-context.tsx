@@ -1,12 +1,26 @@
 "use client";
 
 import { createContext } from "react";
+import type { PageEdit } from "./editor-source";
+
+export interface PreviewEditorControls {
+  flush: () => Promise<void>;
+}
+
+export interface PreviewEditing {
+  isRunning: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+  commit: (messageId: string, edit: PageEdit) => void;
+  register: (messageId: string, controls: PreviewEditorControls) => () => void;
+  retry: () => void;
+}
 
 export const GenerationPreviewContext = createContext<{
   target: HTMLElement | null;
   actionsTarget?: HTMLElement | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  editing?: PreviewEditing;
 } | null>(null);
 
 export const COMPONENT_PREVIEW_LABELS: Record<string, string> = {

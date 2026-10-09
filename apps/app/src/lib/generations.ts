@@ -30,7 +30,14 @@ export function shouldRestoreGenerationMessages(
   }));
   const local = durableIds(current);
   const saved = durableIds(persisted);
-  if (![...local].every((id) => saved.has(id)) || ![...saved].some((id) => !local.has(id))) return false;
+  if (![...local].every((id) => saved.has(id))) return false;
+  const revisions = (messages: readonly unknown[]) => new Map(messages.map(message => {
+    const item = message as { id?: string; content?: { editRevision?: number } };
+    return [item?.id, item?.content?.editRevision ?? 0] as const;
+  }));
+  const localRevisions = revisions(current);
+  const newerEdit = [...revisions(persisted)].some(([id, revision]) => revision > (localRevisions.get(id) ?? 0));
+  if (![...saved].some((id) => !local.has(id)) && !newerEdit) return false;
   if (!isRunning) return true;
   // A connection can be marked running before any model generation starts.
   // Restore a strict extension of that old snapshot, but never replace new or

@@ -12,6 +12,9 @@ export const OpenGenUIContentSchema = z.object({
   css: z.string().optional(),
   cssComplete: z.boolean().optional(),
   html: z.array(z.string()).optional(),
+  // Source-only manual edits; the immutable generated HTML remains the runtime baseline.
+  editedHtml: z.string().optional(),
+  editRevision: z.number().int().nonnegative().optional(),
   htmlComplete: z.boolean().optional(),
   jsFunctions: z.string().optional(),
   jsFunctionsComplete: z.boolean().optional(),

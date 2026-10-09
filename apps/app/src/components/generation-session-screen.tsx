@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   CopilotChat,
@@ -8,6 +8,7 @@ import {
   CopilotChatConfigurationProvider,
 } from "@copilotkit/react-core/v2";
 import { useConversationAgent } from "@/hooks/use-conversation-agent";
+import { useGenerationEditor } from "@/hooks/use-generation-editor";
 import { GenerationToolCallsView } from "@/components/generative-ui/generation-tool-calls";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { GenerationPreviewContext, latestPreviewMessageId } from "@/components/generative-ui/open-generative-ui/preview-context";
@@ -17,6 +18,26 @@ import { TemplateChip } from "@/components/template-library/template-chip";
 import type { ReferenceKind } from "@/components/template-library/types";
 
 const OpenLibraryContext = createContext<(kind: ReferenceKind) => void>(() => {});
+const BeforeSubmitContext = createContext<() => Promise<void>>(async () => {});
+const GenerationMessagesContext = createContext<ComponentProps<typeof CopilotChat.View>["messages"]>(undefined);
+
+const GenerationChatView = Object.assign(function GenerationChatView(props: ComponentProps<typeof CopilotChat.View>) {
+  const beforeSubmit = useContext(BeforeSubmitContext);
+  const messages = useContext(GenerationMessagesContext);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const submit = async (value: string) => {
+    if (submitting) return;
+    setSubmitting(true); setSubmitError(false);
+    try { await beforeSubmit(); props.onSubmitMessage?.(value); }
+    catch { setSubmitError(true); }
+    finally { setSubmitting(false); }
+  };
+  return <>
+    {submitError && <p role="alert" className="px-3 text-xs text-red-600">页面修改尚未保存，需求未发送。请重试发送。</p>}
+    <CopilotChat.View {...props} messages={messages ?? props.messages} isRunning={props.isRunning || submitting} onSubmitMessage={submit} />
+  </>;
+}, CopilotChat.View);
 
 const GenerationChatInput = Object.assign(function GenerationChatInput(props: ComponentProps<typeof CopilotChatInput>) {
   const openLibrary = useContext(OpenLibraryContext);
@@ -37,7 +58,7 @@ export function GenerationSessionScreen({
   const params = useParams<{ id: string }>();
   const id = params.id;
   const router = useRouter();
-  const { agent } = useConversationAgent({ threadId: id });
+  const { agent, isReady } = useConversationAgent({ threadId: id });
   const isRunning = agent.isRunning;
   const [session, setSession] = useState<GenerationSession | null>(null);
   const [error, setError] = useState(false);
@@ -50,6 +71,7 @@ export function GenerationSessionScreen({
   const [previewActionsTarget, setPreviewActionsTarget] = useState<HTMLDivElement | null>(null);
   const [selectedPreviewId, setSelectedPreviewId] = useState<string | null>(null);
   const latestPreviewId = useRef<string | null>(null);
+  const { persist, beforeSubmit, editing, messages: editedMessages } = useGenerationEditor(agent, id, session, readyRef, selectedPreviewId);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,21 +100,6 @@ export function GenerationSessionScreen({
     // Connecting also marks a thread running; check again when it becomes idle.
   }, [agent, id, isRunning]);
 
-  const persist = useCallback((finalized = false) => {
-    if (readyRef.current?.agent !== agent || readyRef.current?.id !== id || !session || session.id !== id) return;
-    const messages = [...agent.messages] as unknown[];
-    void fetch("/api/generations", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        id,
-        title: session.title,
-        status: !finalized && agent.isRunning ? "running" : "complete",
-        messages,
-      }),
-    }).catch((saveError) => console.error("Unable to update generation history", saveError));
-  }, [agent, id, session]);
-
   useEffect(() => {
     if (!session) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -103,27 +110,28 @@ export function GenerationSessionScreen({
         setSelectedPreviewId(previewId);
       }
       if (timer) clearTimeout(timer);
-      timer = setTimeout(persist, 650);
+      timer = setTimeout(() => { void persist().catch(() => {}); }, 650);
     };
     const subscription = agent.subscribe({
       onMessagesChanged: queueSave,
       onRunInitialized: queueSave,
-      onRunFinalized: () => persist(true),
-      onRunFailed: () => persist(true),
+      onRunFinalized: () => { void persist(true).catch(() => {}); },
+      onRunFailed: () => { void persist(true).catch(() => {}); },
     });
     queueSave();
     return () => {
       if (timer) clearTimeout(timer);
       subscription.unsubscribe();
-      persist();
+      void persist().catch(() => {});
     };
   }, [agent, persist, session]);
 
-  const conversation = mode === "overlay" ? (
+  // Activity renderers require the registered agent, not the provisional cold-load clone.
+  const conversation = !isReady ? <p className="p-3 text-xs opacity-60">正在连接生成服务…</p> : mode === "overlay" ? (
     <CopilotChatConfigurationProvider threadId={id}>
       <CopilotChat.View
         messageView={{ assistantMessage: { toolCallsView: GenerationToolCallsView } }}
-        messages={agent.messages}
+        messages={editedMessages}
         isRunning={agent.isRunning}
         input="hidden"
         welcomeScreen={false}
@@ -133,7 +141,11 @@ export function GenerationSessionScreen({
     <>
       <TemplateChip threadId={id} />
       <OpenLibraryContext.Provider value={setLibraryKind}>
-        <CopilotChat threadId={id} input={GenerationChatInput} messageView={{ assistantMessage: { toolCallsView: GenerationToolCallsView } }} labels={{ chatDisclaimerText: "生成内容和对话会自动保存到历史记录。" }} />
+        <BeforeSubmitContext.Provider value={beforeSubmit}>
+          <GenerationMessagesContext.Provider value={editedMessages}>
+            <CopilotChat threadId={id} chatView={GenerationChatView} input={GenerationChatInput} messageView={{ assistantMessage: { toolCallsView: GenerationToolCallsView } }} labels={{ chatDisclaimerText: "生成内容和对话会自动保存到历史记录。" }} />
+          </GenerationMessagesContext.Provider>
+        </BeforeSubmitContext.Provider>
       </OpenLibraryContext.Provider>
     </>
   );
@@ -169,7 +181,7 @@ export function GenerationSessionScreen({
             找不到这条生成记录。
           </div>
         ) : session ? (
-          <GenerationPreviewContext.Provider value={{ target: previewTarget, actionsTarget: previewActionsTarget, selectedId: selectedPreviewId, onSelect: setSelectedPreviewId }}>
+          <GenerationPreviewContext.Provider value={{ target: previewTarget, actionsTarget: previewActionsTarget, selectedId: selectedPreviewId, onSelect: setSelectedPreviewId, editing }}>
             <ResizablePanelGroup orientation="horizontal" className="generation-split flex-1 min-h-0" id={`generation-${id}`}>
               <ResizablePanel id="conversation" defaultSize="30%" minSize="20%">
                 <section aria-label="生成对话" className="generation-conversation h-full min-h-0 flex flex-col px-3">
